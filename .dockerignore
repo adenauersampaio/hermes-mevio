@@ -1,0 +1,14 @@
+# `COPY scripts` leva a pasta inteira. O que for ferramenta de desenvolvimento
+# — e não peça do agente — fica de fora: dentro do contêiner o Mévio tem a
+# ferramenta `terminal`, e nada que leia credencial deve estar ao alcance dela.
+scripts/credencial-github.sh
+git-commit.sh
+
+.env
+.env.local
+.git
+.github
+__pycache__/
+*.pyc
+MANUTENCAO.md
+prompt-manutencao-mevio.md
