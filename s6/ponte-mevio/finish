@@ -1,0 +1,17 @@
+#!/command/with-contenv sh
+# shellcheck shell=sh
+# Companheiro de ./run — ver o comentário de lá.
+#
+# Argumentos de um finish: $1=código de saída do run, $2=sinal,
+# $3=nome do diretório do serviço, $4=pgid. Ver servicedir(7).
+
+case "${MEVIO_PONTE:-}" in
+    1|true|TRUE|True|yes|YES|Yes)
+        # Ligada: se a ponte morrer, queremos que o s6 levante de novo.
+        exit 0
+        ;;
+    *)
+        # Desligada: marca de falha permanente, sem laço de reinício.
+        exit 125
+        ;;
+esac

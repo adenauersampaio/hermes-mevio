@@ -1,0 +1,25 @@
+#!/command/with-contenv sh
+# shellcheck shell=sh
+# Serviço da ponte HTTP do Mévio (scripts/ponte_http.py).
+#
+# Mesmo desenho do serviço `dashboard` da imagem base, e pelo mesmo motivo: o
+# slot é sempre declarado, mas o processo só sobe quando MEVIO_PONTE for
+# verdadeiro. Desligado, o run sai 0 e o `finish` devolve 125 — a marca de
+# "falha permanente" do s6 —, para o supervisor não reiniciar em laço e o
+# `s6-svstat` refletir a realidade (serviço parado, não caindo).
+#
+# Padrão desligado de propósito: cada pedido atendido aqui roda um agente
+# inteiro e gasta crédito de modelo. Ligar é uma decisão explícita.
+
+case "${MEVIO_PONTE:-}" in
+    1|true|TRUE|True|yes|YES|Yes) ;;
+    *) exit 0 ;;
+esac
+
+# with-contenv devolve o HOME de /init (/root). Sem corrigir, o agente
+# procuraria estado em /root em vez do volume persistente.
+export HOME=/opt/data
+
+cd /opt/data || exit 1
+
+exec python3 /opt/hermes-defaults/scripts/ponte_http.py
