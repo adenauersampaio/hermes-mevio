@@ -33,12 +33,14 @@ echo "[Mévio Bootstrap] Inicialização concluída com sucesso. Iniciando agent
 
 # Devolve o controle ao entrypoint da imagem base, SEMPRE.
 #
-# Aqui morava `exec hermes` quando não havia argumentos — e isso teria
-# derrubado o contêiner no primeiro build de verdade. O CMD da imagem base é
-# vazio, então esse ramo era o que ia rodar; `hermes` não está no PATH desta
-# altura (só entra depois que o /init do s6 semeia o ambiente), e mesmo que
-# estivesse, executá-lo direto pularia o `/init` inteiro: sem s6, sem painel,
-# sem gateway de mensageria, sem a ponte HTTP.
+# Aqui morava `if [ $# -eq 0 ]; then exec hermes; else exec "$@"; fi`, e isso
+# teria derrubado o contêiner no primeiro build de verdade — pelos dois ramos.
+# O compose do Coolify passa `command: [gateway, run]`, então quem rodaria era
+# `exec gateway run`: "gateway" não é um executável, é subcomando do `hermes`.
+# Sem o compose, o CMD da imagem base é vazio e cairia no outro ramo, onde
+# `hermes` não está no PATH desta altura (só entra depois que o /init do s6
+# semeia o ambiente). E mesmo que estivesse, executá-lo direto pularia o
+# `/init` inteiro: sem s6, sem painel, sem gateway de mensageria, sem a ponte.
 #
 # `entrypoint-dispatch.sh` é quem decide entre `/init` (o caminho normal, com a
 # árvore de supervisão completa) e o modo degradado de runtimes que não dão
