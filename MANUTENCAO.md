@@ -174,7 +174,14 @@ Nasce **desligada**. Sem `MEVIO_PONTE=true`, o `run` sai 0 e o `finish` devolve
 laço e `s6-svstat` mostra o serviço parado — que é a verdade.
 
 ```bash
-# Estado e log
-docker exec <container> s6-svstat /run/service/ponte-mevio
+# Estado do serviço. O caminho completo é necessário: /command não entra no
+# PATH de um `docker exec` (só o /init do s6 o semeia).
+docker exec <container> /command/s6-svstat /run/service/ponte-mevio
 docker exec <container> sh -c 'curl -s localhost:8779/saude'
 ```
+
+### Verificado em produção (2026-08-24)
+Primeiro deploy com o bootstrap de verdade. `s6-svstat`: `up (pid 152)`. A porta
+8779 **não** é publicada no host — `docker inspect` mostra só 8642 e 9119 — e a
+internet não a alcança. Do contêiner do Minuta Certa, pelo nome e pela rede
+`coolify`: `/saude` 200, `/chat` 200 em 15,5s com a resposta certa.
